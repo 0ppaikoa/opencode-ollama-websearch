@@ -1,0 +1,28 @@
+{
+  "name": "opencode-ollama-websearch",
+  "version": "0.1.0",
+  "description": "Ollama Web Search as an OpenCode websearch provider (server plugin)",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "files": [
+    "index.ts"
+  ],
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "websearch",
+    "ollama"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@opencode/plugin": "latest"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

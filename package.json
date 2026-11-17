@@ -1,7 +1,7 @@
 {
   "name": "opencode-ollama-websearch",
-  "version": "0.1.0",
-  "description": "Ollama Web Search as an OpenCode websearch provider (server plugin)",
+  "version": "0.2.0",
+  "description": "Ollama Web Search and Web Fetch for OpenCode (server plugin)",
   "type": "module",
   "exports": {
     ".": "./index.ts"
@@ -16,6 +16,7 @@
     "opencode",
     "opencode-plugin",
     "websearch",
+    "webfetch",
     "ollama"
   ],
   "license": "MIT",

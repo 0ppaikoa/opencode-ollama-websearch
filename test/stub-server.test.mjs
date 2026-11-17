@@ -117,19 +117,59 @@ test('HTTP 401 from the API surfaces the status code', async () => {
   }
 })
 
-test('API key is unwrapped from a /connect-style credential object', async () => {
+test('API key is unwrapped from an ollama-cloud /connect credential', async () => {
   const { server, url } = await makeStub()
   try {
     const { editor, state } = makeEditor()
     await setupWith(
       {
         options: { endpoint: url },
-        connectionActive: async (id) => (id === 'ollama' ? { id: 'cred-1' } : undefined),
+        connectionActive: async (id) => (id === 'ollama-cloud' ? { id: 'cred-1' } : undefined),
         connectionResolve: async () => ({ key: 'sk-test-key' }),
       },
       editor,
     )
     const out = await state.provider.execute({ query: 'via /connect' }, { signal: new AbortController().signal })
+    assert.equal(out.length, 2)
+  } finally {
+    server.close()
+  }
+})
+
+test('falls back to the legacy "ollama" integration id', async () => {
+  const { server, url } = await makeStub()
+  try {
+    const { editor, state } = makeEditor()
+    await setupWith(
+      {
+        options: { endpoint: url },
+        connectionActive: async (id) => (id === 'ollama' ? { id: 'cred-legacy' } : undefined),
+        connectionResolve: async () => ({ key: 'sk-test-key' }),
+      },
+      editor,
+    )
+    const out = await state.provider.execute({ query: 'via legacy /connect' }, { signal: new AbortController().signal })
+    assert.equal(out.length, 2)
+  } finally {
+    server.close()
+  }
+})
+
+test('resolves a connection made after setup at query time', async () => {
+  const { server, url } = await makeStub()
+  try {
+    let connected = false
+    const { editor, state } = makeEditor()
+    await setupWith(
+      {
+        options: { endpoint: url },
+        connectionActive: async (id) => (connected && id === 'ollama-cloud' ? { id: 'cred-late' } : undefined),
+        connectionResolve: async () => ({ key: 'sk-test-key' }),
+      },
+      editor,
+    )
+    connected = true
+    const out = await state.provider.execute({ query: 'late connection' }, { signal: new AbortController().signal })
     assert.equal(out.length, 2)
   } finally {
     server.close()

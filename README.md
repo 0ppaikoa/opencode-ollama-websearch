@@ -13,7 +13,7 @@ Clone and point your OpenCode config at the checkout:
 ```jsonc title="~/.config/opencode/opencode.json"
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["/home/user/codes/opencode-ollama-websearch"],
+  "plugins": ["/path/to/opencode-ollama-websearch"],
   "websearch": { "provider": "ollama" }
 }
 ```
@@ -26,9 +26,9 @@ The plugin resolves the key in this order:
 
 1. **Plugin options** (goes in your config — avoid unless you keep the file private):
    ```jsonc
-   { "plugins": [{ "package": "/home/user/codes/opencode-ollama-websearch", "options": { "apiKey": "ollama_..." } }] }
+   { "plugins": [{ "package": "/path/to/opencode-ollama-websearch", "options": { "apiKey": "ollama_..." } }] }
    ```
-2. **`/connect` → Ollama** — the key is stored in the OpenCode server's SQLite database, not in any config file or environment variable. The plugin resolves the credential at load time (defensively unwrapped: `key`/`apiKey`/`token`/`value`/`password`/`secret`).
+2. **`/connect` → Ollama Cloud** — the key is stored in the OpenCode server's SQLite database, not in any config file or environment variable. The plugin looks for the `ollama-cloud` integration first, then the legacy `ollama` id. It resolves the credential at load time and retries at query time if no key was available (defensively unwrapped: `key`/`apiKey`/`token`/`value`/`password`/`secret`).
 3. **`OLLAMA_API_KEY`** in the OpenCode server process environment (convenient for development only; note that SSH shells do not reach the server process unless it was started there).
 
 Optional options: `endpoint` (override the API URL, e.g. for testing) and `max_results` (number, passed through to the API).
@@ -45,7 +45,7 @@ Requires Node.js >= 22 (uses built-in type stripping for the `.ts` source).
 npm test
 ```
 
-The test suite runs against a local stub implementing the Ollama `web_search` HTTP API (Bearer auth, `{"query", "max_results?"}` → `{"results": [{title, url, content}]}`). No network access and no API key are needed. The first run creates a minimal `@opencode/plugin` shim in `node_modules/` (gitignored); if you `npm install` the real package, tests use it instead.
+The test suite runs against a local stub implementing the Ollama `web_search` HTTP API (Bearer auth, `{"query", "max_results?"}` → `{"results": [{title, url, content}]}`). No network access and no API key are needed. The connection tests cover both the current `ollama-cloud` integration id and the legacy `ollama` id. The first run creates a minimal `@opencode/plugin` shim in `node_modules/` (gitignored); if you `npm install` the real package, tests use it instead.
 
 ## Publishing
 
